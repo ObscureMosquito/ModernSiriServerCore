@@ -34,6 +34,6 @@ class AsyncOpenHttp(object):
         return None
     
     def run(self, flac, requestId, dictation, language, allowCurses):
-        url = "https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&pfilter={0}&lang={1}&maxresults=6".format(0 if allowCurses else 2, language)
+        url = "http://localhost".format(0 if allowCurses else 2, language)
         req = urllib2.Request(url, data = flac, headers = {'Content-Type': 'audio/x-flac; rate=16000', 'User-Agent': 'Siri-Server'})
         return self.getWebsite(req, timeout=10)
