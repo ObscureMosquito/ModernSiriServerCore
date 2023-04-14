@@ -1,31 +1,8 @@
-Siri Server Core
-===========
-
-Do you like this?
------------------
-If you like this piece of software you can help me by donating, I can afford new devices and so get deeper to the core of all of this. Make it even cooler.
-Or if you just want to give me a little credit for my work. But don't worry the code will remain free, you don't have to donate.
-
-[<img alt="PayPal — The safer, easier way to pay online." src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG_global.gif">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2E3TD99JETMA4)
-
-
-NEWS
-----
-**OS X 10.8 Update**
-
-The new dictate function of OS X Mountain Lion uses the same backing engine as Siri on iOS, therefore this server is able to work with OS X 10.8.
-If you want to use it, you can configure your Mac to use SiriServer.
-I added a minor fix to display a connected Mac correctly.
+This is just the updated architecture of SiriServerCore without any Plugins, made to work with modern Google STT
 
 If you want to configure your Mac to use SiriServer, you can edit the:
 
     ~/Library/Preferences/com.apple.assistant.plist
-
-It follows the same syntax as on iOS. Or you can download a Preference Pane for the System Preferences I wrote which allows you to set some important values.
-You can get it at: http://download.siri-server.com/SiriPrefsForOSX.prefPane.zip
-Just unzip it an install the SiriPrefsForOSX.prefPane by double clicking it.
-You should activate Speech & Dictation before using it, I haven't tested every scenario thoroughly.
-
 
 **iOS 6 Update**
 
@@ -44,41 +21,33 @@ The easiest way to do so is like this:
     
     ssh into your device
     cd /var/mobile/Library/Preferences
-    plutil -convert xml1 com.apple.assistant.plist 
 
 now edit the contents (with your favorite editor) and add (between `<dict></dict>` underneath `<keys>Account</keys>`):
     
     <key>Authentication Disabled</key>
     <true/>
-
-**To Difficult?**
-
-You can also install my tweak available via Cydia which takes care of all of this, also it allows you to select
-more languages. Add http://cydia.siri-server.com/ to your Cydia sources. And install
-"SiriServer Tweaks". Check your Preferences.app for further settings.
-
-
+ 
+You can also do it via iFile
 
 What is this?
 -------------
-This is a very early version of a Siri Server (not a proxy).
+This is a very early version of a Siri Server updated to work in with modern google STT(not a proxy).
 
-Apple's Siri is an voice controlled assistant on iPhone 4S.
+Apple's Siri is an voice controlled assistant on A5 and newer.
 
 With jailbreaking you can install it on other iDevices.
 However, Siri needs a server to communicate to do the speech processing.
-Apple only allows 4S devices on their servers.
 
 This project tries to recreate the Apple Siri Server to use it with other iDevices.
 
-You don't need any 4S keys to make it work, as it is independent from Apple.
-
-It uses Google Speech-To-Text API. And therefore we are currently limited to 
-commands that are shorter than 10 seconds (maybe we can overcome this).
+It uses Google Speech-To-Text API.
 
 
 Setup, Notes and Instructions
 -----------------------------
+*DISCLAIMER*
+
+This project is very old and is only ment to work with python2 and or macos Mavericks or older
 
 **Install audio libraries**
 
@@ -122,6 +91,12 @@ pyOpenSSL is also a requirement for twisted, so installing twisted will already 
 On a debian based system twisted can be installed via apt:
 
 	sudo apt-get install python-twisted
+	
+If that dosent work then try any of the three:
+
+	pip2 install twisted
+	pip install twisted
+	python2 -m pip install twisted
 
 On OS X you can install it via easy_install (`sudo easy_install pyOpenSSL twisted`) or via MacPorts (`sudo port install py27-openssl py27-twisted`)
 
@@ -129,6 +104,10 @@ On OS X you can install it via easy_install (`sudo easy_install pyOpenSSL twiste
 **Certificate Generation**
 
 You also need to generate certificates for this server, they must be placed in the keys/ directory, there are dummy files to show you the correct names.
+
+**Google STT Api**
+
+You will need to aquire a google speech to text api key and replace "YOUR_API_KEY" in "listener.py"
 
 **Installing API Keys**
 
@@ -142,11 +121,11 @@ The apiName is usually printed in error messages when you miss a certain API Key
 
 **Running the server**
 
-Now you are ready to go, start the server with:
+Now you are ready to go, start the servers with (run each in a different terminal window):
 
-	python SiriServer.py
-	
-You don't need to run it as root, as we use https port 4443.
+	sudo python2 SiriServer.py --port 443
+	sudo python2 listener.py
+
 If you want to use another port use:
 
 	python SiriServer.py --port [PORTNUM]
@@ -228,14 +207,6 @@ It should output something like this, note the Ace http request near the end:
 	 User-Agent: Assistant(iPhone/iPhone3,1; iPhone OS/5.0.1/9A405) Ace/1.0
 	 Content-Length: 2000000000
 
-HELP
-------
-If you followed every step of the installation and you still need help to get SiriServer up and running, join #SiriServer channel on Freenode (IRC).
-
-Thanks
-------
-A big thanks to [Applidium](http://applidium.com/en/news/cracking_siri/) and also [plamoni](https://github.com/plamoni/SiriProxy/) for his SiriProxy which inspired me
-Thanks to everyone that contributed code or ideas.
 
 Licensing
 ---------
