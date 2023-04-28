@@ -2,6 +2,12 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import urllib2
 import logging
 import json
+import os
+
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="path to your google auth json"
+
+import base64
 
 class SiriServer(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -13,11 +19,25 @@ class SiriServer(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
         logging.info("Request data: %s" % post_data)
 
+        # Base64 encode the audio data
+        base64_audio = base64.b64encode(post_data).decode('ascii')
+
         # Send the audio file to Google's servers
-        url = "https://www.google.com/speech-api/v2/recognize?output=json&lang=en-US&key=YOUR_API_KEY"
-        headers = {'Content-Type': 'audio/x-flac; rate=16000'}
+        url = "https://speech.googleapis.com/v1/speech:recognize"
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': 'Bearer %s' % os.popen('gcloud auth application-default print-access-token').read().strip()}
+        data = {
+            'config': {
+                'encoding': 'FLAC',
+                'sampleRateHertz': 16000,
+                'languageCode': 'en-US',
+            },
+            'audio': {
+                'content': base64_audio,
+            },
+        }
         try:
-            request = urllib2.Request(url, post_data, headers)
+            request = urllib2.Request(url, json.dumps(data), headers)
             response = urllib2.urlopen(request, timeout=10)
         except urllib2.HTTPError as e:
             logging.error("Failed to send request to Google: %s" % e)
@@ -44,12 +64,16 @@ class SiriServer(BaseHTTPRequestHandler):
                     continue
 
         # Send the transcript back as a response
-        response_string = '{{"status":0,"id":"someid","hypotheses":[{{"utterance":"{transcript}","confidence":0.97}}]}}'.format(transcript=transcript)
+        response_dict = json.loads(response_data)
+	transcript = response_dict["results"][0]["alternatives"][0]["transcript"]
+	response_string = '{{"status":0,"id":"someid","hypotheses":[{{"utterance":"{transcript}","confidence":0.97}}]}}'.format(transcript=transcript)
+
         logging.info("Returning response string: %s" % response_string)
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(response_string.encode())
+
 
 
 if __name__ == '__main__':
