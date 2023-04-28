@@ -108,9 +108,12 @@ On OS X you can install it via easy_install (`sudo easy_install pyOpenSSL twiste
 
 You also need to generate certificates for this server, they must be placed in the keys/ directory, there are dummy files to show you the correct names.
 
-**Google STT Api**
+**Google STT Authentication**
 
-You will need to aquire a google speech to text api key and replace "YOUR_API_KEY" in "listener.py"
+You will need to aquire a google speech to text authentication file (pem or json) and edit listener.py environment variable to point to it, you will also need to install gcloud and log in via:
+
+sudo apt-get install gcloud
+gcloud auth login
 
 **Installing API Keys**
 
